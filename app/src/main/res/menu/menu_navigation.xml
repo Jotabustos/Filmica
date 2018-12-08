@@ -15,4 +15,8 @@
             android:id="@+id/action_trending"
             android:icon="@drawable/ic_action_name"
             android:title="@string/title_trending" />
+    <item
+            android:id="@+id/action_searching"
+            android:icon="@drawable/ic_search"
+            android:title="@string/title_search" />
 </menu>

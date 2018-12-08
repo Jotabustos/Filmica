@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 object FilmsRepo {
 
     private val films: MutableList<Film> = mutableListOf()
+    private val searchedfilms: MutableList<Film> = mutableListOf()
 
     @Volatile
     private var db: AppDatabase? = null
@@ -59,6 +60,17 @@ object FilmsRepo {
         } else {
             callbackSuccess.invoke(films)
         }
+    }
+
+    fun searchFilms(
+        query: String,
+        context: Context,
+        callbackSuccess: ((MutableList<Film>) -> Unit),
+        callbackError: ((VolleyError) -> Unit)
+    ) {
+        searchedfilms.clear()
+        requestSearchFilms(query, callbackSuccess, callbackError, context)
+
     }
 
     fun saveFilm(
@@ -138,6 +150,28 @@ object FilmsRepo {
                 val newFilms = Film.parseFilms(response)
                 films.addAll(newFilms)
                 callbackSuccess.invoke(films)
+            },
+            { error ->
+                callbackError.invoke(error)
+            })
+
+        Volley.newRequestQueue(context)
+            .add(request)
+    }
+
+
+    private fun requestSearchFilms(
+        query: String,
+        callbackSuccess: (MutableList<Film>) -> Unit,
+        callbackError: (VolleyError) -> Unit,
+        context: Context
+    ) {
+        val url = ApiRoutes.searchUrl(query)
+        val request = JsonObjectRequest(Request.Method.GET, url, null,
+            { response ->
+                val newFilms = Film.parseFilms(response)
+                searchedfilms.addAll(newFilms)
+                callbackSuccess.invoke(searchedfilms)
             },
             { error ->
                 callbackError.invoke(error)

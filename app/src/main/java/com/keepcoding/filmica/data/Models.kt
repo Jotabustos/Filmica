@@ -53,14 +53,18 @@ data class Film(
 
         private fun parseGenres(genresArray: JSONArray): String {
             val genres = mutableListOf<String>()
-
-            for (i in 0..(genresArray.length() - 1)) {
-                val genreId = genresArray.getInt(i)
-                val genre = ApiConstants.genres[genreId] ?: ""
-                genres.add(genre)
+            if(genresArray.length() > 0) {
+                for (i in 0..(genresArray.length() - 1)) {
+                    val genreId = genresArray.getInt(i)
+                    val genre = ApiConstants.genres[genreId] ?: ""
+                    genres.add(genre)
+                }
+                return genres.reduce { acc, genre -> "$acc | $genre" }
+            } else {
+                return ""
             }
 
-            return genres.reduce { acc, genre -> "$acc | $genre" }
+
         }
     }
 }
