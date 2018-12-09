@@ -90,8 +90,6 @@ class SearchFragment : Fragment() {
         super.onResume()
         this.searchForFilm(query)
     }
-
-
     private fun searchForFilm(query: String = "") {
 
         if(query != "") {
