@@ -68,7 +68,6 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         list.adapter = adapter
-
         editTextSearch.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(p0: Editable?) {
             }
@@ -95,28 +94,30 @@ class SearchFragment : Fragment() {
 
     private fun searchForFilm(query: String = "") {
 
-        FilmsRepo.searchFilms(query, context!!,
-            { films ->
+        if(query != "") {
+            FilmsRepo.searchFilms(query, context!!,
+                { films ->
 
-                if(films.size == 0){
+                    if (films.size == 0) {
+                        progress?.visibility = View.INVISIBLE
+                        list.visibility = View.INVISIBLE
+                        layoutNotFound?.visibility = View.VISIBLE
+                    } else {
+                        //Films Found
+                        progress?.visibility = View.INVISIBLE
+                        list.visibility = View.VISIBLE
+                        layoutNotFound?.visibility = View.INVISIBLE
+                        adapter.setFilms(films)
+                    }
+                },
+                { error ->
                     progress?.visibility = View.INVISIBLE
                     list.visibility = View.INVISIBLE
                     layoutNotFound?.visibility = View.VISIBLE
-                }else{
-                    //Films Found
-                    progress?.visibility = View.INVISIBLE
-                    list.visibility = View.VISIBLE
-                    layoutNotFound?.visibility = View.INVISIBLE
-                    adapter.setFilms(films)
-                }
-            },
-            { error ->
-                progress?.visibility = View.INVISIBLE
-                list.visibility = View.INVISIBLE
-                layoutErrorInclude?.visibility = View.VISIBLE
 
-                error.printStackTrace()
-            })
+                    error.printStackTrace()
+                })
+        }
 
     }
 
