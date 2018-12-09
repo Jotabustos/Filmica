@@ -13,6 +13,7 @@ import android.widget.SearchView
 import kotlinx.android.synthetic.main.fragment_search.*
 
 import com.keepcoding.filmica.R
+import com.keepcoding.filmica.data.Film
 import com.keepcoding.filmica.data.FilmsRepo
 import com.keepcoding.filmica.view.films.FilmsAdapter
 import com.keepcoding.filmica.view.trending.TrendingFragment
@@ -23,7 +24,8 @@ import kotlinx.android.synthetic.main.layout_error.*
 class SearchFragment : Fragment() {
 
 
-    lateinit var listener: TrendingFragment.OnItemClickListener
+    lateinit var listener: OnItemClickListener
+    var query: String = ""
 
     val list: RecyclerView by lazy {
         val instance = view!!.findViewById<RecyclerView>(R.id.list_search_films)
@@ -55,13 +57,12 @@ class SearchFragment : Fragment() {
 
 
 
-    override fun onAttach(context: Context) {
+    override fun onAttach(context: Context?) {
         super.onAttach(context)
 
-    }
-
-    override fun onDetach() {
-        super.onDetach()
+        if (context is OnItemClickListener) {
+            listener = context
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -69,16 +70,18 @@ class SearchFragment : Fragment() {
 
         list.adapter = adapter
 
-        btnRetry?.setOnClickListener {  }
-
         searchBar.queryHint = "Search film"
+
+        btnRetry?.setOnClickListener { searchForFilm(query) }
 
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                if(query != null) {
-                    searchForFilm(query)
+            override fun onQueryTextSubmit(newQuery: String?): Boolean {
+                if(newQuery != null) {
+                    searchForFilm(newQuery)
+                    query = newQuery
                     progress?.visibility = View.VISIBLE
+
                 }
 
                 return true
@@ -91,6 +94,30 @@ class SearchFragment : Fragment() {
 
         })
     }
+
+    override fun onResume() {
+        super.onResume()
+        this.reload()
+    }
+
+
+    fun reload() {
+        FilmsRepo.searchFilms(query,context!!,
+            { films ->
+                progress?.visibility = View.INVISIBLE
+                layoutError?.visibility = View.INVISIBLE
+                list.visibility = View.VISIBLE
+                adapter.setFilms(films)
+            },
+            { error ->
+                progress?.visibility = View.INVISIBLE
+                list.visibility = View.INVISIBLE
+                layoutError?.visibility = View.VISIBLE
+
+                error.printStackTrace()
+            })
+    }
+
 
     private fun searchForFilm(query: String) {
 
@@ -109,6 +136,10 @@ class SearchFragment : Fragment() {
                 error.printStackTrace()
             })
 
+    }
+
+    interface OnItemClickListener {
+        fun onItemClicked(film: Film)
     }
 
 }

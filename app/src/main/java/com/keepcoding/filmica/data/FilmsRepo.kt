@@ -14,7 +14,9 @@ import kotlinx.coroutines.launch
 object FilmsRepo {
 
     private val films: MutableList<Film> = mutableListOf()
+    private val trendingfilms: MutableList<Film> = mutableListOf()
     private val searchedfilms: MutableList<Film> = mutableListOf()
+    private var watchingfilms: MutableList<Film> = mutableListOf()
 
     @Volatile
     private var db: AppDatabase? = null
@@ -33,7 +35,29 @@ object FilmsRepo {
     }
 
     fun findFilmById(id: String): Film? {
-        return films.find { film -> film.id == id }
+
+        val filmInDiscover = films.find { film -> film.id == id }
+        if (filmInDiscover != null) {
+            return filmInDiscover
+        }
+
+        val filmInTrending = trendingfilms.find { film -> film.id == id }
+        if (filmInTrending != null) {
+            return filmInTrending
+        }
+
+        val filmInSearch = searchedfilms.find { film -> film.id == id }
+        if (filmInSearch != null) {
+            return filmInSearch
+        }
+
+        val filmInWatchlist = watchingfilms.find { film -> film.id == id }
+        if (filmInWatchlist != null) {
+            return filmInWatchlist
+        }
+
+        return null
+
     }
 
     fun discoverFilms(
@@ -55,10 +79,10 @@ object FilmsRepo {
         callbackError: ((VolleyError) -> Unit)
     ) {
 
-        if (films.isEmpty()) {
+        if (trendingfilms.isEmpty()) {
             requestTrendingFilms(callbackSuccess, callbackError, context)
         } else {
-            callbackSuccess.invoke(films)
+            callbackSuccess.invoke(trendingfilms)
         }
     }
 
@@ -100,6 +124,7 @@ object FilmsRepo {
             }
 
             val films: List<Film> = async.await()
+            watchingfilms = films as MutableList<Film>
             callbackSuccess.invoke(films)
         }
     }
@@ -148,8 +173,8 @@ object FilmsRepo {
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->
                 val newFilms = Film.parseFilms(response)
-                films.addAll(newFilms)
-                callbackSuccess.invoke(films)
+                trendingfilms.addAll(newFilms)
+                callbackSuccess.invoke(trendingfilms)
             },
             { error ->
                 callbackError.invoke(error)
