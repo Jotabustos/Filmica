@@ -1,7 +1,6 @@
 package com.keepcoding.filmica.view.search
 
 import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
@@ -16,9 +15,8 @@ import com.keepcoding.filmica.R
 import com.keepcoding.filmica.data.Film
 import com.keepcoding.filmica.data.FilmsRepo
 import com.keepcoding.filmica.view.films.FilmsAdapter
-import com.keepcoding.filmica.view.trending.TrendingFragment
 import com.keepcoding.filmica.view.util.ItemOffsetDecoration
-import kotlinx.android.synthetic.main.layout_error.*
+import kotlinx.android.synthetic.main.layout_notfound.*
 
 
 class SearchFragment : Fragment() {
@@ -38,7 +36,6 @@ class SearchFragment : Fragment() {
         val instance = FilmsAdapter { film ->
             this.listener.onItemClicked(film)
         }
-
         instance
     }
 
@@ -69,10 +66,7 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         list.adapter = adapter
-
         searchBar.queryHint = "Search film"
-
-        btnRetry?.setOnClickListener { searchForFilm(query) }
 
         searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
 
@@ -97,41 +91,31 @@ class SearchFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        this.reload()
+        this.searchForFilm()
     }
 
 
-    fun reload() {
-        FilmsRepo.searchFilms(query,context!!,
-            { films ->
-                progress?.visibility = View.INVISIBLE
-                layoutError?.visibility = View.INVISIBLE
-                list.visibility = View.VISIBLE
-                adapter.setFilms(films)
-            },
-            { error ->
-                progress?.visibility = View.INVISIBLE
-                list.visibility = View.INVISIBLE
-                layoutError?.visibility = View.VISIBLE
-
-                error.printStackTrace()
-            })
-    }
-
-
-    private fun searchForFilm(query: String) {
+    private fun searchForFilm(query: String = "") {
 
         FilmsRepo.searchFilms(query, context!!,
             { films ->
-                progress?.visibility = View.INVISIBLE
-                layoutError?.visibility = View.INVISIBLE
-                list.visibility = View.VISIBLE
-                adapter.setFilms(films)
+
+                if(films.size == 0){
+                    progress?.visibility = View.INVISIBLE
+                    list.visibility = View.INVISIBLE
+                    layoutNotFound?.visibility = View.VISIBLE
+                }else{
+                    //Films Found
+                    progress?.visibility = View.INVISIBLE
+                    list.visibility = View.VISIBLE
+                    layoutNotFound?.visibility = View.INVISIBLE
+                    adapter.setFilms(films)
+                }
             },
             { error ->
                 progress?.visibility = View.INVISIBLE
                 list.visibility = View.INVISIBLE
-                layoutError?.visibility = View.VISIBLE
+                layoutErrorInclude?.visibility = View.VISIBLE
 
                 error.printStackTrace()
             })

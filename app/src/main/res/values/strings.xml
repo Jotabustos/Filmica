@@ -18,4 +18,5 @@
     <string name="title_search">Search</string>
     <string name="film_deleted">Film deleted</string>
     <string name="undo">Undo</string>
+    <string name="not_found">We cant\'t seem to find the film you\'re looking for</string>
 </resources>

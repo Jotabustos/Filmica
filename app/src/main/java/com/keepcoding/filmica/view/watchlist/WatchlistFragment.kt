@@ -2,9 +2,12 @@ package com.keepcoding.filmica.view.watchlist
 
 
 import android.content.Context
+import android.graphics.Color
+import android.icu.text.CompactDecimalFormat
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
@@ -69,13 +72,12 @@ class WatchlistFragment : Fragment() {
             override fun onSwiped(holder: RecyclerView.ViewHolder, direction: Int) {
                 deleteFilmAt(holder.adapterPosition)
 
-                Snackbar.make(holder.itemView, R.string.film_deleted,Snackbar.LENGTH_LONG)
+                Snackbar.make(holder.itemView,R.string.film_deleted,Snackbar.LENGTH_LONG)
+                    .setActionTextColor(ContextCompat.getColor(context!!,R.color.colorAccent))
                     .setAction(R.string.undo) {
                       restoreFilm()
                     }
                     .show()
-
-
             }
         }
 

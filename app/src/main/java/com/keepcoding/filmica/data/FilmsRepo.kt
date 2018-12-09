@@ -10,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.lang.Error
 
 object FilmsRepo {
 
@@ -76,13 +77,14 @@ object FilmsRepo {
     }
 
     fun trendingFilms(
+        page: Int = 1,
         context: Context,
         callbackSuccess: ((MutableList<Film>) -> Unit),
         callbackError: ((VolleyError) -> Unit)
     ) {
 
-        if (trendingfilms.isEmpty()) {
-            requestTrendingFilms(callbackSuccess, callbackError, context)
+        if (trendingfilms.isEmpty() or (page > 1) ) {
+            requestTrendingFilms(page, callbackSuccess, callbackError, context)
         } else {
             callbackSuccess.invoke(trendingfilms)
         }
@@ -168,11 +170,12 @@ object FilmsRepo {
     }
 
     private fun requestTrendingFilms(
+        page: Int = 1,
         callbackSuccess: (MutableList<Film>) -> Unit,
         callbackError: (VolleyError) -> Unit,
         context: Context
     ) {
-        val url = ApiRoutes.trendingUrl()
+        val url = ApiRoutes.trendingUrl(page = page)
         val request = JsonObjectRequest(Request.Method.GET, url, null,
             { response ->
                 val newFilms = Film.parseFilms(response)

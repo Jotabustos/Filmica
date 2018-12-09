@@ -82,7 +82,6 @@ class FilmsFragment : Fragment() {
     }
 
 
-
     private fun setRecyclerViewScrollListener() {
         list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(list: RecyclerView, newState: Int) {
@@ -92,35 +91,34 @@ class FilmsFragment : Fragment() {
                 var lastVisibleItemPosition = linearLayout.findLastVisibleItemPosition()
                 val totalItemCount = list.layoutManager!!.itemCount
 
-                if(totalItemCount == lastVisibleItemPosition +1) {
-                    page += 1
-
-                    FilmsRepo.discoverFilms(page, context!!,
-                        { films ->
-                            progress?.visibility = View.INVISIBLE
-                            layoutError?.visibility = View.INVISIBLE
-                            list.visibility = View.VISIBLE
-                            adapter.setFilms(films)
-                        },
-                        { error ->
-                            progress?.visibility = View.INVISIBLE
-                            list.visibility = View.INVISIBLE
-                            layoutError?.visibility = View.VISIBLE
-
-                            error.printStackTrace()
-                        })
-
+                if(totalItemCount == lastVisibleItemPosition + 1) {
+                    loadNewPageDiscover(list)
                     adapter.notifyItemRangeInserted(lastVisibleItemPosition+1, adapter.itemCount)
-
                 }
 
+            }
 
+            private fun loadNewPageDiscover(list: RecyclerView) {
+                page += 1
 
+                FilmsRepo.discoverFilms(page, context!!,
+                    { films ->
+                        progress?.visibility = View.INVISIBLE
+                        layoutError?.visibility = View.INVISIBLE
+                        list.visibility = View.VISIBLE
+                        adapter.setFilms(films)
+                    },
+                    { error ->
+                        progress?.visibility = View.INVISIBLE
+                        list.visibility = View.INVISIBLE
+                        layoutError?.visibility = View.VISIBLE
+
+                        error.printStackTrace()
+                    })
             }
 
         })
     }
-
 
 
     interface OnItemClickListener {

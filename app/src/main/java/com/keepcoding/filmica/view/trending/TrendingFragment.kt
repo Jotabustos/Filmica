@@ -3,6 +3,7 @@ package com.keepcoding.filmica.view.trending
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -21,6 +22,7 @@ import kotlinx.android.synthetic.main.layout_error.*
 class TrendingFragment : Fragment() {
 
     lateinit var listener: OnItemClickListener
+    var page = 1
 
     val list: RecyclerView by lazy {
         val instance = view!!.findViewById<RecyclerView>(R.id.list_trending_films)
@@ -56,7 +58,7 @@ class TrendingFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         list.adapter = adapter
-
+        setRecyclerViewScrollListener()
         btnRetry?.setOnClickListener { reload() }
     }
 
@@ -75,7 +77,7 @@ class TrendingFragment : Fragment() {
     }
 
     fun reload() {
-        FilmsRepo.trendingFilms(context!!,
+        FilmsRepo.trendingFilms(page, context!!,
             { films ->
                 progress?.visibility = View.INVISIBLE
                 layoutError?.visibility = View.INVISIBLE
@@ -90,6 +92,46 @@ class TrendingFragment : Fragment() {
                 error.printStackTrace()
             })
     }
+
+
+    private fun setRecyclerViewScrollListener() {
+        list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(list: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(list, newState)
+
+                val linearLayout: LinearLayoutManager = list.layoutManager as LinearLayoutManager
+                var lastVisibleItemPosition = linearLayout.findLastVisibleItemPosition()
+                val totalItemCount = list.layoutManager!!.itemCount
+
+                if(totalItemCount == lastVisibleItemPosition + 1) {
+                    loadNewPageTrending(list)
+                    adapter.notifyItemRangeInserted(lastVisibleItemPosition+1, adapter.itemCount)
+                }
+
+            }
+
+            private fun loadNewPageTrending(list: RecyclerView) {
+                page += 1
+
+                FilmsRepo.trendingFilms(page, context!!,
+                    { films ->
+                        progress?.visibility = View.INVISIBLE
+                        layoutError?.visibility = View.INVISIBLE
+                        list.visibility = View.VISIBLE
+                        adapter.setFilms(films)
+                    },
+                    { error ->
+                        progress?.visibility = View.INVISIBLE
+                        list.visibility = View.INVISIBLE
+                        layoutError?.visibility = View.VISIBLE
+
+                        error.printStackTrace()
+                    })
+            }
+
+        })
+    }
+
 
     interface OnItemClickListener {
         fun onItemClicked(film: Film)

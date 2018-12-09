@@ -22,11 +22,12 @@ object ApiRoutes {
             .toString()
     }
 
-    fun trendingUrl(): String {
+    fun trendingUrl( page: Int = 1): String {
         return getUriBuilder()
             .appendPath("trending")
             .appendPath("movie")
             .appendPath("week")
+            .appendQueryParameter("page", page.toString())
             .build()
             .toString()
     }
