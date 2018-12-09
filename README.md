@@ -1,5 +1,5 @@
 # Filmica
-`Filmica` is an Android app for searching movies using the API of TMDb(https://www.themoviedb.org)
+`Filmica` is an Android app for searching movies using the API of [TMDb](https://www.themoviedb.org)
 
 ## How to build
 
