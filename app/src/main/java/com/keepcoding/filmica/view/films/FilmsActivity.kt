@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import com.keepcoding.filmica.R
 import com.keepcoding.filmica.data.Film
 import com.keepcoding.filmica.view.detail.DetailsActivity
@@ -121,7 +122,7 @@ class FilmsActivity : AppCompatActivity(), FilmsFragment.OnItemClickListener, Tr
 
     private fun showDetailsFragment(id: String) {
         val detailsFragment = DetailsFragment.newInstance(id)
-
+        imagePlaceholder.visibility = View.INVISIBLE
         supportFragmentManager.beginTransaction()
             .replace(R.id.containerDetails, detailsFragment)
             .commit()

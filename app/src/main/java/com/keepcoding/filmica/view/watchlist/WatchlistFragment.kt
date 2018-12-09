@@ -72,7 +72,6 @@ class WatchlistFragment : Fragment() {
                 Snackbar.make(holder.itemView, R.string.film_deleted,Snackbar.LENGTH_LONG)
                     .setAction(R.string.undo) {
                       restoreFilm()
-
                     }
                     .show()
 
