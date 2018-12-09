@@ -4,10 +4,11 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SearchView
 
 import kotlinx.android.synthetic.main.fragment_search.*
 
@@ -39,6 +40,7 @@ class SearchFragment : Fragment() {
         instance
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -66,32 +68,28 @@ class SearchFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         list.adapter = adapter
-        searchBar.queryHint = "Search film"
 
-        searchBar.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+        editTextSearch.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(p0: Editable?) {
+            }
 
-            override fun onQueryTextSubmit(newQuery: String?): Boolean {
-                if(newQuery != null) {
+            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+            }
+
+            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                val newQuery = p0?.toString()
+                if (newQuery?.length!! > 3){
                     searchForFilm(newQuery)
                     query = newQuery
                     progress?.visibility = View.VISIBLE
-
                 }
-
-                return true
             }
-
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return true
-            }
-
-
         })
     }
 
     override fun onResume() {
         super.onResume()
-        this.searchForFilm()
+        this.searchForFilm(query)
     }
 
 
