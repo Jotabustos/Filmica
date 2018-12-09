@@ -9,3 +9,6 @@
     tools:context=".view.watchlist.WatchlistFragment">
 
 </android.support.v7.widget.RecyclerView>
+
+
+

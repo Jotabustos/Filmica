@@ -3,12 +3,14 @@ package com.keepcoding.filmica.view.watchlist
 
 import android.content.Context
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import kotlinx.android.synthetic.main.fragment_watchlist.*
 
 import com.keepcoding.filmica.R
@@ -26,6 +28,8 @@ class WatchlistFragment : Fragment() {
         }
         instance
     }
+
+    lateinit var temporalFilm: Film
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -54,7 +58,6 @@ class WatchlistFragment : Fragment() {
         }
 
     }
-
     fun loadWatchlist() {
         FilmsRepo.watchlist(context!!) { films ->
             adapter.setFilms(films.toMutableList())
@@ -65,6 +68,15 @@ class WatchlistFragment : Fragment() {
         val swipeHandler = object : SwipeToDeleteCallback() {
             override fun onSwiped(holder: RecyclerView.ViewHolder, direction: Int) {
                 deleteFilmAt(holder.adapterPosition)
+
+                Snackbar.make(holder.itemView, R.string.film_deleted,Snackbar.LENGTH_LONG)
+                    .setAction(R.string.undo) {
+                      restoreFilm()
+
+                    }
+                    .show()
+
+
             }
         }
 
@@ -74,10 +86,18 @@ class WatchlistFragment : Fragment() {
 
     private fun deleteFilmAt(position: Int) {
         val film = adapter.getFilm(position)
+        temporalFilm = film
         FilmsRepo.deleteFilm(context!!, film) {
             adapter.removeFilmAt(position)
         }
     }
+
+    private fun restoreFilm() {
+        FilmsRepo.saveFilm(context!!, temporalFilm) {
+            loadWatchlist()
+        }
+    }
+
 
     interface OnItemClickListener {
         fun onItemClicked(film: Film)
