@@ -3,10 +3,12 @@ package com.keepcoding.filmica.view.films
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.keepcoding.filmica.R
 import com.keepcoding.filmica.data.Film
 import com.keepcoding.filmica.data.FilmsRepo
@@ -17,6 +19,8 @@ import kotlinx.android.synthetic.main.layout_error.*
 class FilmsFragment : Fragment() {
 
     lateinit var listener: OnItemClickListener
+    var page = 1
+
 
     val list: RecyclerView by lazy {
         val instance = view!!.findViewById<RecyclerView>(R.id.list_films)
@@ -24,6 +28,8 @@ class FilmsFragment : Fragment() {
         instance.setHasFixedSize(true)
         instance
     }
+
+
 
     val adapter: FilmsAdapter by lazy {
         val instance = FilmsAdapter { film ->
@@ -49,7 +55,7 @@ class FilmsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         list.adapter = adapter
-
+        setRecyclerViewScrollListener()
         btnRetry?.setOnClickListener { reload() }
     }
 
@@ -59,7 +65,7 @@ class FilmsFragment : Fragment() {
     }
 
     fun reload() {
-        FilmsRepo.discoverFilms(context!!,
+        FilmsRepo.discoverFilms(page,context!!,
             { films ->
                 progress?.visibility = View.INVISIBLE
                 layoutError?.visibility = View.INVISIBLE
@@ -74,6 +80,48 @@ class FilmsFragment : Fragment() {
                 error.printStackTrace()
             })
     }
+
+
+
+    private fun setRecyclerViewScrollListener() {
+        list.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrollStateChanged(list: RecyclerView, newState: Int) {
+                super.onScrollStateChanged(list, newState)
+
+                val linearLayout: LinearLayoutManager = list.layoutManager as LinearLayoutManager
+                var lastVisibleItemPosition = linearLayout.findLastVisibleItemPosition()
+                val totalItemCount = list.layoutManager!!.itemCount
+
+                if(totalItemCount == lastVisibleItemPosition +1) {
+                    page += 1
+
+                    FilmsRepo.discoverFilms(page, context!!,
+                        { films ->
+                            progress?.visibility = View.INVISIBLE
+                            layoutError?.visibility = View.INVISIBLE
+                            list.visibility = View.VISIBLE
+                            adapter.setFilms(films)
+                        },
+                        { error ->
+                            progress?.visibility = View.INVISIBLE
+                            list.visibility = View.INVISIBLE
+                            layoutError?.visibility = View.VISIBLE
+
+                            error.printStackTrace()
+                        })
+
+                    adapter.notifyItemRangeInserted(lastVisibleItemPosition+1, adapter.itemCount)
+
+                }
+
+
+
+            }
+
+        })
+    }
+
+
 
     interface OnItemClickListener {
         fun onItemClicked(film: Film)

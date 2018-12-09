@@ -27,6 +27,8 @@ class FilmsActivity : AppCompatActivity(), FilmsFragment.OnItemClickListener, Tr
     private lateinit var trendingFragment: TrendingFragment
     private lateinit var searchFragment: SearchFragment
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_films)
